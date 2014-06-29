@@ -88,6 +88,8 @@ func Crawl(urls []string, depth int, fetcher Fetcher) {
 
 	new_pages <- Search{urls, depth}
 
+	num_finished := 0
+
 	still_running := true
 	num_running := 0
 	for still_running {
@@ -103,12 +105,15 @@ func Crawl(urls []string, depth int, fetcher Fetcher) {
 			}
 		case fin := <-signal_done:
 			num_running -= fin
+			num_finished += fin
 		default:
 			if num_running <= 0 {
 				still_running = false
 			}
 		}
 	}
+
+	fmt.Println("Crawled ", num_finished, " pages!")
 }
 
 func main() {
