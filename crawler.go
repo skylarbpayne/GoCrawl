@@ -9,7 +9,7 @@ import (
 	"code.google.com/p/go.net/html"
 )
 
-const num_fetches = 100
+const num_fetches = 10
 
 func get_url_base(url string) string {
 	count := 0
@@ -55,7 +55,12 @@ func Crawl(urls []string, depth int, fetcher Fetcher) {
 	crawler = func(url string, depth int, fetcher Fetcher) {
 		defer func() {
 			fmt.Println("Done")
-			signal_done <- 1
+
+			select {
+			case signal_done <- 1:
+			case nd := <-signal_done:
+				signal_done <- nd + 1
+			}
 		}()
 
 		if depth < 0 {
